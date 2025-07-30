@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from './config';
 
 function ErrorHistory() {
   const [errorLogs, setErrorLogs] = useState([]);
@@ -12,7 +13,7 @@ function ErrorHistory() {
   const fetchErrorLogs = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/error-logs');
+      const res = await fetch(`${API_BASE_URL}/api/error-logs`);
       const data = await res.json();
       setErrorLogs(data.reverse()); // show latest first
     } catch (err) {
@@ -29,7 +30,7 @@ function ErrorHistory() {
         duration: log.request.duration,
         unit: log.request.unit
       }).toString();
-      const res = await fetch(`/api/logs?${params}`);
+      const res = await fetch(`${API_BASE_URL}/api/logs?${params}`);
       const data = await res.json();
       if (data.errors && data.errors.length === 0) {
         setRecheckResults(prev => ({ ...prev, [idx]: { status: 'fixed' } }));
@@ -132,7 +133,7 @@ function App() {
     setApiErrors([]);
     setHasFetchedLogs(false);
     try {
-      const res = await fetch(`/api/logs?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
+      const res = await fetch(`${API_BASE_URL}/api/logs?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
       const data = await res.json();
       setWfmsLogs(data.wfmsLogs || []);
       setPricingLogs(data.pricingLogs || []);
@@ -156,7 +157,7 @@ function App() {
     setError(null);
     setSummary(null);
     try {
-      const res = await fetch(`/api/logs/summary?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
+      const res = await fetch(`${API_BASE_URL}/api/logs/summary?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
       const data = await res.json();
       setSummary(data);
       setShowSummary(true);
@@ -188,7 +189,7 @@ function App() {
     setError(null);
     setMergedLogs([]);
     try {
-      const res = await fetch(`/api/logs/merged?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
+      const res = await fetch(`${API_BASE_URL}/api/logs/merged?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
       const data = await res.json();
       setMergedLogs(data.mergedLogs || []);
     } catch (err) {
