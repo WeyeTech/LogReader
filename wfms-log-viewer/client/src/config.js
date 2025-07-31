@@ -4,8 +4,7 @@ const config = {
     API_BASE_URL: 'http://localhost:4000'
   },
   production: {
-    // Use a separate API server or port to avoid web server proxy issues
-    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-ui.prod-we.com:4000'
+    API_BASE_URL: '/app/logs'  // 🔧 Let NGINX proxy this
   }
 };
 
