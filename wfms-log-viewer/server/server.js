@@ -14,12 +14,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Serve static files from React build (if build exists)
-const buildPath = path.join(__dirname, '../client/build');
-if (fs.existsSync(buildPath)) {
-  app.use(express.static(buildPath));
-}
-
 // TODO: Replace with your actual Elasticsearch MCP endpoint and API key
 const client = new Client({
   node: 'http://logging-es.prod-we.com',
@@ -333,16 +327,6 @@ app.get('/api/error-logs', (req, res) => {
     res.json(logs);
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
-});
-
-// Catch all handler: send back React's index.html file for any non-API routes
-app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, '../client/build/index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).json({ error: 'React build not found. Please run npm run build in the client directory.' });
   }
 });
 
