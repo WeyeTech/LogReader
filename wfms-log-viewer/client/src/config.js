@@ -4,8 +4,8 @@ const config = {
     API_BASE_URL: 'http://localhost:4000'
   },
   production: {
-    // Use the same domain as the frontend, no path prefix
-    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-ui.prod-we.com'
+    // Use the backend server domain for API calls
+    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.prod-we.com'
   }
 };
 
