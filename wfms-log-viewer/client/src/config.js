@@ -4,8 +4,8 @@ const config = {
     API_BASE_URL: 'http://localhost:4000'
   },
   production: {
-    // Use the backend server domain for API calls
-    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.prod-we.com'
+    // Use the UI domain - Nginx will proxy /api/ requests to the backend
+    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-ui.prod-we.com'
   }
 };
 
