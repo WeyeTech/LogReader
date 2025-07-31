@@ -9,10 +9,10 @@ COPY . .
 FROM node:18-alpine
 WORKDIR /app
 COPY --from=build /app /app
+
+# Copy the frontend build output here
+COPY --from=export /build ./build
+
 ENV NODE_ENV=production
-
-# Expose app port
 EXPOSE 3000
-
-# Run your app
 CMD ["node", "server.js"]
