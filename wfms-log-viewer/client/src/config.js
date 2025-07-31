@@ -1,9 +1,9 @@
 const config = {
   development: {
-    API_BASE_URL: 'http://localhost:3000/api' // frontend runs on 3000, backend on 80
+    API_BASE_URL: 'http://localhost:3000'
   },
   production: {
-    API_BASE_URL: '/api' // UI served from http://logreader-ui.prod-we.com, proxy /api to backend
+    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.marketplace.svc.cluster.local'
   }
 };
 
