@@ -5,7 +5,7 @@ const config = {
   },
   production: {
     // Use the UI domain - Nginx will proxy /api/ requests to the backend
-    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-ui.prod-we.com'
+    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.marketplace.svc.cluster'
   }
 };
 
