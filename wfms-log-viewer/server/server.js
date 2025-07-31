@@ -4,7 +4,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const port = 4000;
+const port = 80;
 
 // Updated CORS configuration for production
 app.use(cors({
