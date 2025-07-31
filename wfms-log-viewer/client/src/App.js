@@ -109,12 +109,27 @@ function App() {
   const [mergedLoading, setMergedLoading] = useState(false);
   const [odinLogs, setOdinLogs] = useState([]);
   const [ravenLogs, setRavenLogs] = useState([]);
+  const [umsLogs, setUmsLogs] = useState([]);
+  const [argusLogs, setArgusLogs] = useState([]);
+  const [shieldLogs, setShieldLogs] = useState([]);
+  const [omsLogs, setOmsLogs] = useState([]);
+  const [paymentLogs, setPaymentLogs] = useState([]);
+  const [mjolnirLogs, setMjolnirLogs] = useState([]);
+  const [ocmsLogs, setOcmsLogs] = useState([]);
   const [apiErrors, setApiErrors] = useState([]);
   const [hasFetchedLogs, setHasFetchedLogs] = useState(false);
+  const [activeTab, setActiveTab] = useState('mp'); // 'mp' or 'saas'
 
   useEffect(() => {
     document.title = 'Simple Log Viewer';
   }, []);
+
+  // Clear errors and logs when tab changes
+  useEffect(() => {
+    setApiErrors([]);
+    setHasFetchedLogs(false);
+    setMergedLogs([]);
+  }, [activeTab]);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -129,11 +144,20 @@ function App() {
     setShowSummary(false);
     setOdinLogs([]);
     setRavenLogs([]);
+    setUmsLogs([]);
+    setArgusLogs([]);
+    setShieldLogs([]);
+    setOmsLogs([]);
+    setPaymentLogs([]);
+    setMjolnirLogs([]);
+    setOcmsLogs([]);
     setMergedLogs([]);
     setApiErrors([]);
     setHasFetchedLogs(false);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/logs?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
+      // Include UMS logs only when SaaS tab is active
+      const includeUms = activeTab === 'saas' ? 'true' : 'false';
+      const res = await fetch(`${API_BASE_URL}/api/logs?demandId=${demandId}&duration=${duration}&unit=${durationUnit}&includeUms=${includeUms}`);
       const data = await res.json();
       setWfmsLogs(data.wfmsLogs || []);
       setPricingLogs(data.pricingLogs || []);
@@ -141,6 +165,13 @@ function App() {
       setTesseractLogs(data.tesseractLogs || []);
       setOdinLogs(data.odinLogs || []);
       setRavenLogs(data.ravenLogs || []);
+      setUmsLogs(data.umsLogs || []);
+      setArgusLogs(data.argusLogs || []);
+      setShieldLogs(data.shieldLogs || []);
+      setOmsLogs(data.omsLogs || []);
+      setPaymentLogs(data.paymentLogs || []);
+      setMjolnirLogs(data.mjolnirLogs || []);
+      setOcmsLogs(data.ocmsLogs || []);
       setApiErrors(data.errors || []);
       setCount(data.count);
       setHasFetchedLogs(true);
@@ -179,6 +210,13 @@ function App() {
     setError(null);
     setOdinLogs([]);
     setRavenLogs([]);
+    setUmsLogs([]);
+    setArgusLogs([]);
+    setShieldLogs([]);
+    setOmsLogs([]);
+    setPaymentLogs([]);
+    setMjolnirLogs([]);
+    setOcmsLogs([]);
     setMergedLogs([]);
     setApiErrors([]);
     setHasFetchedLogs(false);
@@ -189,7 +227,9 @@ function App() {
     setError(null);
     setMergedLogs([]);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/logs/merged?demandId=${demandId}&duration=${duration}&unit=${durationUnit}`);
+      // Fetch merged logs based on active tab
+      const tabType = activeTab === 'mp' ? 'mp' : 'saas';
+      const res = await fetch(`${API_BASE_URL}/api/logs/merged?demandId=${demandId}&duration=${duration}&unit=${durationUnit}&tab=${tabType}`);
       const data = await res.json();
       setMergedLogs(data.mergedLogs || []);
     } catch (err) {
@@ -293,7 +333,7 @@ function App() {
             onMouseOver={e => { if (!mergedLoading && demandId) e.target.style.background = '#f59e42'; }}
             onMouseOut={e => { if (!mergedLoading && demandId) e.target.style.background = 'linear-gradient(90deg, #f59e42 0%, #fbbf24 100%)'; }}
           >
-            {mergedLoading ? "Loading..." : "Show All Logs (Merged & Sorted)"}
+            {mergedLoading ? "Loading..." : `Show ${activeTab === 'mp' ? 'MP' : 'SaaS'} Logs (Merged & Sorted)`}
           </button>
           <button
             onClick={resetLogs}
@@ -317,40 +357,95 @@ function App() {
         </div>
         {error && <div style={{ color: '#ef4444', marginBottom: 8, fontWeight: 500 }}>{error}</div>}
         {count !== null && <div style={{ color: '#3b82f6', fontWeight: 600, marginBottom: 8 }}>Log Count: {count}</div>}
+        
+        {/* Tab Navigation */}
+        <div style={{ display: 'flex', gap: 4, marginTop: 16, justifyContent: 'center' }}>
+          <button
+            onClick={() => setActiveTab('mp')}
+            style={{
+              background: activeTab === 'mp' ? '#3b82f6' : '#f1f5f9',
+              color: activeTab === 'mp' ? '#fff' : '#64748b',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              padding: '8px 16px',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            MP Services
+          </button>
+          <button
+            onClick={() => setActiveTab('saas')}
+            style={{
+              background: activeTab === 'saas' ? '#3b82f6' : '#f1f5f9',
+              color: activeTab === 'saas' ? '#fff' : '#64748b',
+              border: '1px solid #cbd5e1',
+              borderRadius: 8,
+              padding: '8px 16px',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            SaaS Services
+          </button>
+        </div>
       </div>
       <div style={{ width: '100%', maxWidth: 900, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 32 }}>
         {apiErrors.length > 0 && (
           <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 12, padding: 16, marginBottom: 16, fontWeight: 600, maxHeight: 400, overflow: 'auto' }}>
-            <div style={{ fontSize: 18, marginBottom: 8, position: 'sticky', top: 0, background: '#fef2f2', padding: '4px 0' }}>Errors from PODs:</div>
-            {apiErrors.map((err, idx) => (
-              <div key={idx} style={{ marginBottom: 16 }}>
-                <div style={{ color: '#b91c1c', fontWeight: 700 }}>{err.pod}:</div>
-                {err.message && <div style={{ marginBottom: 4 }}>Fetch/Query Error: {err.message}</div>}
-                {err.logLevelErrors && err.logLevelErrors.length > 0 && (
-                  <div style={{ marginBottom: 4 }}>
-                    <div style={{ fontWeight: 600 }}>Log-level Errors:</div>
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {err.logLevelErrors.map((log, i) => (
-                        <li key={i} style={{ marginBottom: 4, fontFamily: 'Fira Mono, monospace', fontSize: 14 }}>
-                          <span style={{ color: '#2563eb' }}>[{log['@timestamp'] || ''}]</span> {log.log || log.message || ''}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {!err.message && (!err.logLevelErrors || err.logLevelErrors.length === 0) && <div>No errors found.</div>}
-              </div>
-            ))}
+            <div style={{ fontSize: 18, marginBottom: 8, position: 'sticky', top: 0, background: '#fef2f2', padding: '4px 0' }}>Errors from {activeTab === 'mp' ? 'MP' : 'SaaS'} PODs:</div>
+            {apiErrors
+              .filter(err => {
+                // Filter errors based on active tab
+                if (activeTab === 'mp') {
+                  // Show only MP pod errors
+                  return ['wfmsLogs', 'pricingLogs', 'consignerLogs', 'tesseractLogs', 'odinLogs', 'ravenLogs'].includes(err.pod);
+                } else {
+                  // Show only SaaS pod errors
+                  return ['umsLogs', 'argusLogs', 'shieldLogs', 'omsLogs', 'paymentLogs', 'mjolnirLogs', 'ocmsLogs'].includes(err.pod);
+                }
+              })
+              .map((err, idx) => (
+                <div key={idx} style={{ marginBottom: 16 }}>
+                  <div style={{ color: '#b91c1c', fontWeight: 700 }}>{err.pod}:</div>
+                  {err.message && <div style={{ marginBottom: 4 }}>Fetch/Query Error: {err.message}</div>}
+                  {err.logLevelErrors && err.logLevelErrors.length > 0 && (
+                    <div style={{ marginBottom: 4 }}>
+                      <div style={{ fontWeight: 600 }}>Log-level Errors:</div>
+                      <ul style={{ margin: 0, paddingLeft: 18 }}>
+                        {err.logLevelErrors.map((log, i) => (
+                          <li key={i} style={{ marginBottom: 4, fontFamily: 'Fira Mono, monospace', fontSize: 14 }}>
+                            <span style={{ color: '#2563eb' }}>[{log['@timestamp'] || ''}]</span> {log.log || log.message || ''}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {!err.message && (!err.logLevelErrors || err.logLevelErrors.length === 0) && <div>No errors found.</div>}
+                </div>
+              ))}
           </div>
         )}
-        {hasFetchedLogs && apiErrors.length === 0 && (
+        {hasFetchedLogs && apiErrors.filter(err => {
+          if (activeTab === 'mp') {
+            return ['wfmsLogs', 'pricingLogs', 'consignerLogs', 'tesseractLogs', 'odinLogs', 'ravenLogs'].includes(err.pod);
+          } else {
+            return ['umsLogs', 'argusLogs', 'shieldLogs', 'omsLogs', 'paymentLogs', 'mjolnirLogs', 'ocmsLogs'].includes(err.pod);
+          }
+        }).length === 0 && (
           <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', borderRadius: 12, padding: 16, marginBottom: 16, fontWeight: 600 }}>
-            <div style={{ fontSize: 16 }}>No errors from any POD.</div>
+            <div style={{ fontSize: 16 }}>No errors from any {activeTab === 'mp' ? 'MP' : 'SaaS'} POD.</div>
           </div>
         )}
         {mergedLogs.length > 0 && (
           <div style={{ background: 'linear-gradient(90deg, #fbbf24 0%, #f59e42 100%)', borderRadius: 16, boxShadow: '0 4px 16px rgba(251,191,36,0.08)', padding: 24 }}>
-            <h3 style={{ color: '#b45309', fontWeight: 700, marginBottom: 16, fontSize: 22 }}>All Logs (Merged & Time Sorted)</h3>
+            <h3 style={{ color: '#b45309', fontWeight: 700, marginBottom: 16, fontSize: 22 }}>
+              {activeTab === 'mp' ? 'MP Services' : 'SaaS Services'} Logs (Merged & Time Sorted)
+            </h3>
             <div style={{ maxHeight: 400, overflow: "auto", background: "#fff7ed", padding: 16, borderRadius: 12, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
               {mergedLogs.map((log, i) => (
                 <div key={i} style={{ marginBottom: 14, borderBottom: '1px solid #fde68a', paddingBottom: 8 }}>
@@ -364,80 +459,172 @@ function App() {
             </div>
           </div>
         )}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: 24 }}>
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
-            <h3 style={{ color: '#3b82f6', fontWeight: 700, marginBottom: 12 }}>WFMS Logs</h3>
-            <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
-              {wfmsLogs.map((log, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <span style={{ color: '#2563eb', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
-                  <br/>
-                  <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
-                </div>
-              ))}
+        {/* Tabbed Content */}
+        {activeTab === 'mp' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: 24 }}>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#3b82f6', fontWeight: 700, marginBottom: 12 }}>WFMS Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {wfmsLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#2563eb', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#f59e42', fontWeight: 700, marginBottom: 12 }}>Pricing Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {pricingLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#f59e42', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#10b981', fontWeight: 700, marginBottom: 12 }}>Consigner Aggregator Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {consignerLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#10b981', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#a21caf', fontWeight: 700, marginBottom: 12 }}>Tesseract Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {tesseractLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#a21caf', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#f43f5e', fontWeight: 700, marginBottom: 12 }}>Odin Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {odinLogs && odinLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#f43f5e', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#6366f1', fontWeight: 700, marginBottom: 12 }}>Raven Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {ravenLogs && ravenLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#6366f1', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
-            <h3 style={{ color: '#f59e42', fontWeight: 700, marginBottom: 12 }}>Pricing Logs</h3>
-            <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
-              {pricingLogs.map((log, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <span style={{ color: '#f59e42', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
-                  <br/>
-                  <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
-                </div>
-              ))}
+        )}
+        
+        {activeTab === 'saas' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: 24 }}>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#8b5cf6', fontWeight: 700, marginBottom: 12 }}>UMS Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {umsLogs && umsLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#8b5cf6', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#dc2626', fontWeight: 700, marginBottom: 12 }}>Argus Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {argusLogs && argusLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#dc2626', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#059669', fontWeight: 700, marginBottom: 12 }}>Shield Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {shieldLogs && shieldLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#059669', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#7c3aed', fontWeight: 700, marginBottom: 12 }}>OMS Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {omsLogs && omsLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#7c3aed', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#ea580c', fontWeight: 700, marginBottom: 12 }}>Payment Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {paymentLogs && paymentLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#ea580c', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#be185d', fontWeight: 700, marginBottom: 12 }}>Mjolnir Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {mjolnirLogs && mjolnirLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#be185d', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
+              <h3 style={{ color: '#0891b2', fontWeight: 700, marginBottom: 12 }}>OCMS Logs</h3>
+              <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
+                {ocmsLogs && ocmsLogs.map((log, i) => (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <span style={{ color: '#0891b2', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
+                    <br/>
+                    <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
-            <h3 style={{ color: '#10b981', fontWeight: 700, marginBottom: 12 }}>Consigner Aggregator Logs</h3>
-            <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
-              {consignerLogs.map((log, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <span style={{ color: '#10b981', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
-                  <br/>
-                  <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
-            <h3 style={{ color: '#a21caf', fontWeight: 700, marginBottom: 12 }}>Tesseract Logs</h3>
-            <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
-              {tesseractLogs.map((log, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <span style={{ color: '#a21caf', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
-                  <br/>
-                  <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
-            <h3 style={{ color: '#f43f5e', fontWeight: 700, marginBottom: 12 }}>Odin Logs</h3>
-            <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
-              {odinLogs && odinLogs.map((log, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <span style={{ color: '#f43f5e', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
-                  <br/>
-                  <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(60,60,120,0.06)', padding: 20 }}>
-            <h3 style={{ color: '#6366f1', fontWeight: 700, marginBottom: 12 }}>Raven Logs</h3>
-            <div style={{ maxHeight: 200, overflow: "auto", background: "#f5f5f5", padding: 12, borderRadius: 8, fontFamily: 'Fira Mono, monospace', fontSize: 15 }}>
-              {ravenLogs && ravenLogs.map((log, i) => (
-                <div key={i} style={{ marginBottom: 10 }}>
-                  <span style={{ color: '#6366f1', fontWeight: 600 }}>[{log['@timestamp'] || ''}]</span>
-                  <br/>
-                  <span style={{ color: '#222', fontWeight: 500 }}>{log['log'] || ''}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
