@@ -6,9 +6,6 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-# Make sure REACT_APP_API_URL is passed at build time
-ARG REACT_APP_API_URL
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 RUN npm run build
 
