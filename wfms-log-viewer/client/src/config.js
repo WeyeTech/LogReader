@@ -9,4 +9,4 @@ const config = {
 };
 
 const environment = process.env.NODE_ENV || 'development';
-export const API_BASE_URL = config[environment].API_BASE_URL;
+export const API_BASE_URL = 'http://logreader-server.prod-we.com';
