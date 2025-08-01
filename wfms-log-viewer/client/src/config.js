@@ -1,9 +1,10 @@
 const config = {
   development: {
-    API_BASE_URL: 'http://localhost:3000'
+    API_BASE_URL: 'http://localhost:80'
   },
   production: {
-    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.marketplace.svc.cluster.local'
+    // API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.marketplace.svc.cluster.local'
+    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.prod-we.com'
   }
 };
 
