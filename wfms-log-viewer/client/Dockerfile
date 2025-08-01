@@ -7,6 +7,8 @@ RUN npm ci
 
 COPY . .
 
+# Set NODE_ENV to production for the build
+ENV NODE_ENV=production
 RUN npm run build
 
 # Serve build with lightweight HTTP server
