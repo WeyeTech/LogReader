@@ -4,7 +4,7 @@ const config = {
   },
   production: {
     // API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.marketplace.svc.cluster.local'
-    API_BASE_URL: process.env.REACT_APP_API_URL || 'http://logreader-server.prod-we.com'
+    API_BASE_URL: 'http://logreader-server.prod-we.com'
   }
 };
 
