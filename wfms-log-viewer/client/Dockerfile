@@ -1,14 +1,22 @@
-# ---- Build Stage ----
-FROM node:20-alpine AS build
+# frontend/Dockerfile
+FROM node:18-alpine AS builder
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
+
+# Set NODE_ENV to production for the build
+ENV NODE_ENV=production
 RUN npm run build
 
-# ---- Production Stage ----
-FROM nginx:1.25-alpine
-COPY --from=build /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Serve build with lightweight HTTP server
+FROM node:18-alpine
+RUN npm install -g serve
+
+WORKDIR /app
+COPY --from=builder /app/build ./build
+
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["serve", "-s", "build", "-l", "80"]

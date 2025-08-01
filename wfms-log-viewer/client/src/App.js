@@ -157,7 +157,10 @@ function App() {
     try {
       // Include UMS logs only when SaaS tab is active
       const includeUms = activeTab === 'saas' ? 'true' : 'false';
-      const res = await fetch(`${API_BASE_URL}/api/logs?demandId=${demandId}&duration=${duration}&unit=${durationUnit}&includeUms=${includeUms}`);
+      const url = `${API_BASE_URL}/api/logs?demandId=${demandId}&duration=${duration}&unit=${durationUnit}&includeUms=${includeUms}`;
+      console.log('DEBUG: Fetching from URL:', url);
+      console.log('DEBUG: API_BASE_URL:', API_BASE_URL);
+      const res = await fetch(url);
       const data = await res.json();
       setWfmsLogs(data.wfmsLogs || []);
       setPricingLogs(data.pricingLogs || []);

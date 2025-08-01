@@ -4,11 +4,11 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const port = 4000;
+const port = 80;
 
 // Updated CORS configuration for production
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://logreader-ui.prod-we.com', 'https://logreader-ui.prod-we.com'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://logreader-ui.prod-we.com'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
